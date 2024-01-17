@@ -1,0 +1,24 @@
+import("//build/libs/TEMPLATE.gni")
+
+opuntiaOS_static_library("libg") {
+  sources = [
+    "src/Color.cpp",
+    "src/Context.cpp",
+    "src/Font.cpp",
+    "src/ImageLoaders/PNGLoader.cpp",
+    "src/PixelBitmap.cpp",
+    "src/Rect.cpp",
+  ]
+
+  deplibs = [
+    "libcxx",
+    "libfoundation",
+    "libipc",
+    "libfreetype",
+  ]
+  configs = [ "//build/libs:libcxx_flags" ]
+
+  if (host == "llvm") {
+    cflags = [ "-flto" ]
+  }
+}

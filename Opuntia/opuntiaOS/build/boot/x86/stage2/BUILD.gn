@@ -1,0 +1,52 @@
+# Copyright 2021 Nikita Melekhin. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+linker_script =
+    rebase_path("//build/boot/$target_arch/boot_link.ld", root_build_dir)
+
+executable("stage2") {
+  output_name = "stage2.bin"
+  sources = [
+    "//boot/libboot/crypto/sha256.c",
+    "//boot/libboot/crypto/signature.c",
+    "//boot/libboot/crypto/uint2048.c",
+    "//boot/libboot/crypto/validate.c",
+    "//boot/libboot/devtree/devtree.c",
+    "//boot/libboot/elf/elf_lite.c",
+    "//boot/libboot/fs/ext2_lite.c",
+    "//boot/libboot/log/log.c",
+    "//boot/libboot/mem/alloc.c",
+    "//boot/libboot/mem/mem.c",
+    "//boot/x86/stage2/drivers/ata.c",
+    "//boot/x86/stage2/drivers/port.c",
+    "//boot/x86/stage2/drivers/uart.c",
+    "//boot/x86/stage2/mem/vm.c",
+    "//boot/x86/stage2/stage2.c",
+    "//boot/x86/stage2/stage2_entry.s",
+  ]
+
+  include_dirs = [ "//boot" ]
+
+  ldflags = [
+    "-T$linker_script",
+    "--oformat",
+    "binary",
+    "-Map=stage2.map",
+  ]
+
+  cflags = [
+    "-ffreestanding",
+    "-Werror",
+    "-Wno-address-of-packed-member",
+    "-mno-80387",
+    "-mno-mmx",
+    "-mno-sse",
+    "-mno-sse2",
+  ]
+
+  asmflags = [
+    "-f",
+    "elf",
+  ]
+}

@@ -1,0 +1,16 @@
+import("//build/userland/TEMPLATE.gni")
+
+opuntiaOS_application("terminal") {
+  display_name = "Terminal"
+  sources = [
+    "AppDelegate.cpp",
+    "TerminalView.cpp",
+  ]
+  configs = [ "//build/userland:userland_flags" ]
+  deplibs = [
+    "libcxx",
+    "libfoundation",
+    "libg",
+    "libui",
+  ]
+}

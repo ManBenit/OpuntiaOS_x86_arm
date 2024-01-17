@@ -1,0 +1,261 @@
+# Copyright 2021 Nikita Melekhin. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/security/SIGN_TEMPLATE.gni")
+
+kernel_out_path = "base/boot"
+
+kernel_c_flags = [
+  "-std=gnu11",
+  "-ffreestanding",
+  "-Werror",
+  "-Wno-address-of-packed-member",
+  "-fpie",
+]
+kernel_asm_flags = []
+kernel_ld_flags = []
+
+if (debug_build) {
+  kernel_c_flags += [ "-DDEBUG_KERNEL" ]
+}
+
+if (kernel_symbols) {
+  kernel_c_flags += [ "-ggdb" ]
+}
+
+if (optimize) {
+  kernel_c_flags += [ "-Os" ]
+  if (host == "llvm") {
+    kernel_c_flags += [ "-flto" ]
+
+    if (target_arch == "x86_64") {
+      kernel_c_flags += [
+        "-mllvm",
+        "-code-model=large",
+      ]
+    }
+  }
+}
+
+if (target_arch == "x86" && kernel_preempt) {
+  kernel_c_flags += [ "-DPREEMPT_KERNEL" ]
+}
+
+if (device_type == "desktop") {
+  kernel_c_flags += [ "-DTARGET_DESKTOP" ]
+}
+if (device_type == "mobile") {
+  kernel_c_flags += [ "-DTARGET_MOBILE" ]
+}
+
+if (target_arch == "x86") {
+  kernel_c_flags += [
+    "-mno-80387",
+    "-mno-mmx",
+    "-mno-sse",
+    "-mno-sse2",
+  ]
+  kernel_asm_flags += [
+    "-w+all",
+    "-Werror",
+    "-f",
+    "elf",
+  ]
+  kernel_ld_flags += [
+    "--oformat",
+    "elf32-i386",
+  ]
+}
+
+if (target_arch == "x86_64") {
+  kernel_c_flags += [
+    "-mno-80387",
+    "-mno-mmx",
+    "-mno-sse",
+    "-mno-sse2",
+    "-mno-red-zone",
+    "-fno-omit-frame-pointer",
+    "-mcmodel=large",
+  ]
+  kernel_asm_flags += [
+    "-w+all",
+    "-Werror",
+    "-f",
+    "elf64",
+  ]
+  if (host == "llvm") {
+    kernel_ld_flags += [
+      "--oformat",
+      "elf64",
+    ]
+  }
+}
+
+if (target_arch == "arm32") {
+  kernel_c_flags += [
+    "-fno-builtin",
+    "-march=armv7-a",
+    "-mfpu=neon-vfpv4",
+    "-mfloat-abi=soft",
+  ]
+  kernel_asm_flags += [
+    "-march=armv7-a",
+    "-mfpu=neon-vfpv4",
+    "-mfloat-abi=softfp",
+    "-mcpu=cortex-a15",
+  ]
+  kernel_ld_flags += [ "-nostdlib" ]
+
+  if (host == "gnu") {
+    kernel_ld_flags += [
+      "-nostdinc",
+      "-nodefaultlibs",
+      "-nostartfiles",
+      "-lgcc",
+    ]
+  }
+
+  if (host == "llvm") {
+    kernel_ld_flags += [
+      "--oformat",
+      "elf32-littlearm",
+      rebase_path("//toolchains/llvm_runtime/11.1.0/libclang_rt.builtins-arm.a",
+                  root_build_dir),
+    ]
+  }
+}
+
+if (target_arch == "arm64") {
+  kernel_c_flags += [
+    "-fno-builtin",
+    "-mcpu=cortex-a53+nofp+nosimd+nocrypto+nocrc",
+  ]
+  kernel_asm_flags += [ "-mcpu=cortex-a53+nofp+nosimd+nocrypto+nocrc" ]
+  kernel_ld_flags += [ "-nostdlib" ]
+
+  if (host == "gnu") {
+    kernel_ld_flags += [
+      "-nostdinc",
+      "-nodefaultlibs",
+      "-nostartfiles",
+      "-lgcc",
+    ]
+  }
+
+  if (host == "llvm") {
+    kernel_ld_flags += [
+      "--oformat",
+      "elf64-littlearm",
+    ]
+  }
+
+  # Qemu virt is used as a test platform.
+  if (target_board == "qemu_virt") {
+    kernel_c_flags += [ "-DTARGET_QEMU_VIRT" ]
+    kernel_asm_flags += [ "-DTARGET_QEMU_VIRT" ]
+  }
+  if (target_board == "apl") {
+    kernel_c_flags += [ "-DTARGET_APL" ]
+    kernel_asm_flags += [ "-DTARGET_APL" ]
+  }
+
+  # Enabling KASAN only for GCC builds as LLVM has fixed KASAN shadow bases
+  # which are incompatible with opuntiaOS layout.
+  if (debug_build && host == "gnu") {
+    kernel_c_flags += [
+      "-fsanitize=kernel-address",
+      "-DKASAN_ENABLED",
+    ]
+  }
+}
+
+if (target_arch == "riscv64") {
+  kernel_c_flags += [
+    "-fno-builtin",
+    "-march=rv64ima",
+    "-mabi=lp64",
+    "-mcmodel=medany",
+  ]
+  kernel_asm_flags += [
+    "-mcmodel=medany",
+    "-march=rv64ima",
+    "-mabi=lp64",
+  ]
+  kernel_ld_flags += [ "-nostdlib" ]
+
+  if (host == "gnu") {
+    kernel_ld_flags += [
+      "-nostdinc",
+      "-nodefaultlibs",
+      "-nostartfiles",
+      rebase_path("//toolchains/gcc_runtime/10.2.1/riscv64-libgcc.a",
+                root_build_dir),
+    ]
+  }
+
+  if (host == "llvm") {
+    kernel_ld_flags += [
+      "--oformat",
+      "elf64",
+      rebase_path("//toolchains/gcc_runtime/10.2.1/riscv64-libgcc.a",
+                root_build_dir),
+    ]
+  }
+}
+
+config("kernel_flags") {
+  cflags = kernel_c_flags
+  asmflags = kernel_asm_flags
+  ldflags = kernel_ld_flags
+  defines = [ "opuntiaOS_kernel" ]
+}
+
+kernel_src = exec_script("get_kernel_files.py",
+                         [
+                           rebase_path("//src", root_build_dir),
+                           target_arch,
+                         ],
+                         "list lines")
+
+linker_script =
+    rebase_path("//build/kernel/$target_arch/kernel_link.ld", root_build_dir)
+
+action("kernel_config") {
+  script = "//build/kernel/gen_config.py"
+  outputs = [ "$root_out_dir/base/boot/kernel.config" ]
+  args = [
+    rebase_path("$root_out_dir/base/boot/kernel.config", root_build_dir),
+    "$target_arch",
+    "$host",
+  ]
+}
+
+executable("kernel_build") {
+  deps = [ ":kernel_config" ]
+
+  output_name = "$kernel_out_path/kernel.bin"
+  sources = kernel_src
+
+  include_dirs = [ "//kernel/include" ]
+
+  configs = [ ":kernel_flags" ]
+
+  ldflags = [
+    # See comment at EXEC_TEMPLATE.gni about elfsign_section.o.
+    # It is required to sign a binary.
+    rebase_path("$root_out_dir/tmp/elfsign_section.o", ""),
+    "-T$linker_script",
+  ]
+}
+
+opuntiaOS_signexec("kernel") {
+  binpath = "boot/kernel.bin"
+}
+
+group("kernel") {
+  deps = [
+    ":kernel_build",
+    ":sign_kernel",
+  ]
+}

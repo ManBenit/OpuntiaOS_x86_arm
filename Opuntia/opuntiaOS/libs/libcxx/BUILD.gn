@@ -1,0 +1,40 @@
+import("//build/libs/TEMPLATE.gni")
+import("//libs/libc/LIBC_SOURCES.gni")
+
+libcxxabi_sources = [
+  "abi/cxa_runtime.cpp",
+  "abi/dynamic_cast.cpp",
+  "abi/type_info_defs.cpp",
+]
+if (target_arch == "arm32") {
+  libcxxabi_sources += [ "abi/aeabi_runtime.cpp" ]
+}
+
+opuntiaOS_static_library("libcxx") {
+  sources = libc_sources_for_libcxx
+
+  # Private LibCxx sources.
+  sources += [
+    "init/_init.cpp",
+    "init/_lib.cpp",
+    "src/iostream.cpp",
+    "src/typeinfo.cpp",
+  ]
+  sources += libcxxabi_sources
+
+  if (target_arch == "arm32") {
+    sources += [ "../libc/string/routines/arm32/memset.S" ]
+  }
+
+  include_dirs = [
+    "include/",
+    "//libs/libc/include/",
+    "//libs/",
+  ]
+
+  configs = [ "//build/libs:libcxx_flags" ]
+
+  if (host == "llvm") {
+    cflags = [ "-flto" ]
+  }
+}

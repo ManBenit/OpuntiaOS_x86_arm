@@ -1,0 +1,40 @@
+# Copyright 2021 Nikita Melekhin. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+action("build_scripts") {
+  script = "build_scripts.py"
+  outputs = [
+    "$root_build_dir/build.sh",
+    "$root_build_dir/run.sh",
+    "$root_build_dir/sync.sh",
+    "$root_build_dir/all.sh",
+  ]
+
+  args = [
+    target_arch,
+    target_board,
+    rebase_path("//", root_build_dir),
+    rebase_path("$root_build_dir", root_build_dir),
+  ]
+}
+
+# Use a strange __EMPTY_PATH_, empty string can't be passed as an arg.
+path_to_bins = "__EMPTY_PATH_"
+if (host == "llvm") {
+  path_to_bins = llvm_bin_path
+}
+
+prepare_env_script_args = [
+  rebase_path("$root_out_dir/tmp/elfsign_section.o", root_build_dir),
+  "$target_arch",
+  "$target_board",
+  "$host",
+  "$path_to_bins",
+]
+
+action("prepare_env") {
+  script = "prepare_env.py"
+  outputs = [ "$root_build_dir/tmp/elfsign_section.o" ]
+  args = prepare_env_script_args
+}

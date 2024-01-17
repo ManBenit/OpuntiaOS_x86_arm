@@ -1,0 +1,17 @@
+import("//build/userland/TEMPLATE.gni")
+
+opuntiaOS_application("about") {
+  display_name = "About"
+  sources = [
+    "AppDelegate.cpp",
+  ]
+  configs = [
+    "//build/userland:userland_flags",
+  ]
+  deplibs = [
+    "libcxx",
+    "libfoundation",
+    "libg",
+    "libui"
+  ]
+}

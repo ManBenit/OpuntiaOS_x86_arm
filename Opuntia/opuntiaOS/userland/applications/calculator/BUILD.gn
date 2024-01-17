@@ -1,0 +1,17 @@
+import("//build/userland/TEMPLATE.gni")
+
+opuntiaOS_application("calculator") {
+  display_name = "Calculator"
+  sources = [
+    "AppDelegate.cpp",
+  ]
+  configs = [
+    "//build/userland:userland_flags",
+  ]
+  deplibs = [
+    "libcxx",
+    "libfoundation",
+    "libg",
+    "libui"
+  ]
+}

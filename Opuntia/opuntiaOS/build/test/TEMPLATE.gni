@@ -1,0 +1,40 @@
+# Copyright 2021 Nikita Melekhin. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/userland/EXEC_TEMPLATE.gni")
+
+template("opuntiaOS_test") {
+  app_name = string_replace(invoker.test_bundle, "/", "\$")
+  opuntiaOS_executable_template(app_name) {
+    install_path = "test_bin/"
+    forward_variables_from(invoker,
+                           [
+                             "sources",
+                             "configs",
+                             "deplibs",
+                             "cflags",
+                             "cflags_c",
+                             "cflags_cc",
+                             "cflags_objc",
+                             "cflags_objcc",
+                             "asmflags",
+                             "ldflags",
+                             "public_deps",
+                           ])
+    if (defined(invoker.cflags)) {
+      cflags = invoker.cflags
+    } else {
+      cflags = []
+    }
+
+    cflags += [
+      "-DTestMsg(x)=printf(\"[MSG] %s\n\", x);fflush(stdout);",
+      "-DTestErr(x)=printf(\"[MSG] %s\n\", x);fflush(stdout);exit(1)",
+    ]
+  }
+
+  group(target_name) {
+    deps = [ ":$app_name" + "_build" ]
+  }
+}

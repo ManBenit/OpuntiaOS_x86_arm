@@ -1,0 +1,15 @@
+import("//build/userland/TEMPLATE.gni")
+
+opuntiaOS_executable("launch_server") {
+  signexec = true
+  install_path = "System/"
+  sources = [
+    "LaunchWatchdog.cpp",
+    "main.cpp",
+  ]
+  configs = [ "//build/userland:userland_flags" ]
+  deplibs = [
+    "libcxx",
+    "libfoundation",
+  ]
+}

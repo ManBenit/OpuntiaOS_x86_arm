@@ -1,0 +1,19 @@
+import("//build/libs/TEMPLATE.gni")
+
+opuntiaOS_static_library("libfoundation") {
+  sources = [
+    "src/EventLoop.cpp",
+    "src/Logger.cpp",
+    "src/ProcessInfo.cpp",
+    "src/compress/puff.c",
+    "src/json/Lexer.cpp",
+    "src/json/Parser.cpp",
+  ]
+
+  deplibs = [ "libcxx" ]
+  configs = [ "//build/libs:libcxx_flags" ]
+
+  if (host == "llvm") {
+    cflags = [ "-flto" ]
+  }
+}

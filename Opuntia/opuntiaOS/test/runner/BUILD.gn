@@ -1,0 +1,9 @@
+import("//build/userland/TEMPLATE.gni")
+
+opuntiaOS_executable("launch_server") {
+  signexec = true
+  install_path = "System/"
+  sources = [ "main.c" ]
+  configs = [ "//build/userland:userland_flags" ]
+  deplibs = [ "libc" ]
+}

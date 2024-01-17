@@ -1,0 +1,79 @@
+# Copyright (C) 2020-2022 The opuntiaOS Project Authors.
+#  + Contributed by Nikita Melekhin <nimelehin@gmail.com>
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//build/userland/USERLAND_FLAGS.gni")
+
+config("userland_flags") {
+  cflags = uland_c_flags
+  cflags_cc = uland_cc_flags
+  cflags_objcc = uland_objcc_flags
+  asmflags = uland_asm_flags
+  ldflags = uland_ld_flags
+  defines = [ "opuntiaOS" ]
+}
+
+group("applications") {
+  deps = [
+    "//userland/applications/about:about",
+    "//userland/applications/activity_monitor:activity_monitor",
+    "//userland/applications/calculator:calculator",
+    "//userland/applications/terminal:terminal",
+  ]
+}
+
+group("system") {
+  deps = [
+    "//userland/system/applist:applist",
+    "//userland/system/dock:dock",
+    "//userland/system/homescreen:homescreen",
+  ]
+}
+
+group("servers") {
+  deps = [ "//userland/servers/window_server:window_server" ]
+}
+
+group("utilities") {
+  deps = [
+    "//userland/utilities/cat:cat",
+    "//userland/utilities/kill:kill",
+    "//userland/utilities/ls:ls",
+    "//userland/utilities/mkdir:mkdir",
+    "//userland/utilities/rm:rm",
+    "//userland/utilities/rmdir:rmdir",
+    "//userland/utilities/sudo:sudo",
+    "//userland/utilities/touch:touch",
+    "//userland/utilities/uname:uname",
+    "//userland/utilities/whoami:whoami",
+  ]
+}
+
+group("userland") {
+  deps = [
+    "//build/userland:applications",
+    "//build/userland:servers",
+    "//build/userland:system",
+    "//build/userland:utilities",
+    "//userland/shell/onesh:onesh",
+  ]
+
+  # Make sure that we don't run any tests/benchmarks, since
+  # tests/benchmarks use thier own entry point.
+  if (test_method == "none") {
+    deps += [ "//userland/servers/launch_server:launch_server" ]
+  }
+
+  if (compile_tests) {
+    deps += [
+      "//userland/tests/testlibcxx:testlibcxx",
+      "//userland/tests/utester:utester",
+    ]
+
+    if (objc_support) {
+      deps += [ "//userland/tests/testobjc:testobjc" ]
+    }
+  }
+}

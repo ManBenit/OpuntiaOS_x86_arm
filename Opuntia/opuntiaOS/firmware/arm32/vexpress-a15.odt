@@ -1,0 +1,84 @@
+{
+    "name": "vexpress-a15",
+    "devices": [{
+            "name": "ram",
+            "type": "RAM",
+            "mem": {
+                "base": "0x80000000",
+                "size": "0x10000000"
+            }
+        },
+        {
+            "name": "gicv2",
+            "type": "IC",
+            "aux1": "0x1000",
+            "aux2": "0x2000"
+        },
+        {
+            "name": "pl031",
+            "type": "RTC",
+            "flags": "MMIO",
+            "mem": {
+                "base": "0x1c170000"
+            }
+        },
+        {
+            "name": "pl050k",
+            "type": "IO",
+            "flags": "MMIO",
+            "mem": {
+                "base": "0x1c060000"
+            },
+            "irq": {
+                "lane": "44"
+            }
+        },
+        {
+            "name": "pl050m",
+            "type": "IO",
+            "flags": "MMIO",
+            "mem": {
+                "base": "0x1c070000"
+            },
+            "irq": {
+                "lane": "45"
+            }
+        },
+        {
+            "name": "pl111",
+            "type": "FB",
+            "flags": "MMIO",
+            "mem": {
+                "base": "0x1c1f0000"
+            }
+        },
+        {
+            "name": "pl181",
+            "type": "BUS_CONTROLLER",
+            "flags": "MMIO",
+            "mem": {
+                "base": "0x1c050000"
+            }
+        },
+        {
+            "name": "uart",
+            "type": "UART",
+            "flags": "MMIO",
+            "mem": {
+                "base": "0x1c090000"
+            }
+        },
+        {
+            "name": "sp804",
+            "type": "TIMER",
+            "flags": "MMIO",
+            "mem": {
+                "base": "0x1c110000"
+            },
+            "irq": {
+                "lane": "34",
+                "flags": "EDGE_TRIGGER"
+            }
+        }
+    ]
+}

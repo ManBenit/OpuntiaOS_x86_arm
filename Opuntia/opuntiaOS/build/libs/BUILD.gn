@@ -1,0 +1,127 @@
+# Copyright 2021 Nikita Melekhin. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+lib_c_flags = [
+  "-ffreestanding",
+  "-Werror",
+  "-Wno-address-of-packed-member",
+]
+
+if (userland_symbols) {
+  lib_c_flags += [ "-ggdb" ]
+}
+
+if (optimize) {
+  lib_c_flags += [ "-Os" ]
+}
+
+lib_cc_flags = [
+  "-std=c++2a",
+  "-fno-sized-deallocation",
+  "-fno-exceptions",
+  "-D_LIBCXX_BUILD_OPUNTIAOS_EXTENSIONS",
+]
+
+lib_objcc_flags = lib_cc_flags + [
+                    "-Wno-nullability-completeness",
+                    "-Wno-deprecated-objc-isa-usage",
+                    "-Wno-objc-root-class",
+                    "-Wno-cast-of-sel-type",
+                    "-fno-objc-exceptions",
+                    "-fno-objc-arc",
+                    "-fno-unwind-tables",
+                  ]
+
+lib_asm_flags = []
+
+if (device_type == "desktop") {
+  lib_c_flags += [ "-DTARGET_DESKTOP" ]
+}
+if (device_type == "mobile") {
+  lib_c_flags += [ "-DTARGET_MOBILE" ]
+}
+
+if (target_arch == "x86") {
+  lib_asm_flags += [
+    "-f",
+    "elf",
+  ]
+}
+
+if (target_arch == "x86_64") {
+  lib_asm_flags += [
+    "-f",
+    "elf64",
+  ]
+}
+
+if (target_arch == "arm32") {
+  lib_c_flags += [
+    "-fno-builtin",
+    "-march=armv7-a",
+    "-mfpu=neon-vfpv4",
+    "-mfloat-abi=softfp",
+    "-fno-pie",
+  ]
+  lib_asm_flags += [
+    "-march=armv7-a",
+    "-mfpu=neon-vfpv4",
+    "-mfloat-abi=softfp",
+    "-mcpu=cortex-a15",
+  ]
+}
+
+if (target_arch == "arm64") {
+  lib_c_flags += [
+    "-fno-builtin",
+    "-mcpu=cortex-a53+nocrypto+nocrc",
+    "-fno-pie",
+  ]
+  lib_asm_flags += [ "-mcpu=cortex-a53+nocrypto+nocrc" ]
+}
+
+if (target_arch == "riscv64") {
+  lib_c_flags += [
+    "-fno-builtin",
+    "-march=rv64ima",
+    "-mabi=lp64",
+    "-fno-pie",
+  ]
+  lib_asm_flags += [
+    "-march=rv64ima",
+    "-mabi=lp64",
+  ]
+}
+
+config("lib_flags") {
+  cflags = lib_c_flags
+  asmflags = lib_asm_flags
+}
+
+config("libobjcc_flags") {
+  cflags = lib_c_flags
+  cflags_objcc = lib_objcc_flags
+  cflags_cc = lib_cc_flags
+  asmflags = lib_asm_flags
+}
+
+config("libcxx_flags") {
+  cflags = lib_c_flags
+  asmflags = lib_asm_flags
+  cflags_cc = lib_cc_flags
+}
+
+group("libs") {
+  deps = [
+    "//libs/libc:libc",
+    "//libs/libcxx:libcxx",
+    "//libs/libfoundation:libfoundation",
+    "//libs/libg:libg",
+    "//libs/libui:libui",
+  ]
+
+  if (objc_support) {
+    deps += [ "//libs/libobjc:libobjc" ]
+  }
+}

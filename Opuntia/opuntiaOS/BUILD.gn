@@ -1,0 +1,29 @@
+# Copyright 2021 Nikita Melekhin. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+group("build") {
+  deps = [
+    ":env",
+    "//build/boot:boot",
+    "//build/kernel:kernel",
+
+    "//build/libs:libs",
+    "//build/third_party:third_party",
+    "//build/userland:userland",
+  ]
+  if (compile_tests) {
+    deps += [ "//build/test:test" ]
+  }
+}
+
+group("env") {
+  deps = [
+    ":scripts",
+    "//build/tools:prepare_env",
+  ]
+}
+
+group("scripts") {
+  deps = [ "//build/tools:build_scripts" ]
+}

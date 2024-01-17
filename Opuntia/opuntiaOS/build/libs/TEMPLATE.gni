@@ -1,0 +1,106 @@
+# Copyright 2021 Nikita Melekhin. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+template("opuntiaOS_static_library") {
+  assert(defined(invoker.sources),
+         "Need sources in $target_name to build static library")
+
+  lib_name = target_name
+  lib_build_name = lib_name + "_build"
+  lib_include_config_name = lib_name + "_include_config"
+  compiled_lib_output_name_base = "$root_out_dir/tmp/libs/"
+  compiled_lib_output_name = compiled_lib_output_name_base + lib_name
+  final_lib_output_name = "$root_out_dir/base/libs/" + lib_name + ".a"
+  building_deplib_bulders_list = []
+  linking_deplib_bulders_list = []
+  linking_deplib_list = []
+  includes = []
+
+  if (defined(invoker.include_dirs)) {
+    includes = invoker.include_dirs
+  }
+
+  if (defined(invoker.deplibs)) {
+    foreach(i, invoker.deplibs) {
+      fullname = "//libs/" + i + ":" + i
+
+      # To speed up compilation we have separate deps for builing and linking stages.
+      # The only library which is required to be a dependancy for building stage is libfreetype,
+      # since its header files might not be available initially (they are archived).
+      if (i == "libfreetype") {
+        building_deplib_bulders_list += [ fullname + "_build" ]
+      }
+
+      linking_deplib_bulders_list += [ fullname + "_build" ]
+      linking_deplib_list += [ compiled_lib_output_name_base +
+                               get_label_info(fullname, "name") + ".a" ]
+      includes += [ "//libs/" + i + "/include" ]
+
+      # Also adding libc includes.
+      # Note to add libc after libcxx.
+      if (i == "libcxx") {
+        includes += [ "//libs/libc/include" ]
+      }
+
+      # LibAPI is a lightweight library to use shared headers with API between libs and apps.
+      if (i == "libui") {
+        includes += [ "//libs/libapi/include" ]
+      }
+    }
+  }
+  includes += [ "//libs/" + lib_name + "/include" ]
+
+  # The output library is passed at the end.
+  linking_deplib_list += [ compiled_lib_output_name + ".a" ]
+  linking_deplib_bulders_list += [ "//libs/" + lib_name + ":" + lib_build_name ]
+
+  # Use a strange __EMPTY_PATH_, empty string can't be passed as an arg.
+  path_to_bins = "__EMPTY_PATH_"
+  if (host == "llvm") {
+    path_to_bins = llvm_bin_path
+  }
+
+  script_args = [
+    "$target_arch",
+    "$host",
+    "$path_to_bins",
+    rebase_path("$final_lib_output_name", root_build_dir),
+  ]
+
+  foreach(i, linking_deplib_list) {
+    script_args += [ rebase_path(i, root_build_dir) ]
+  }
+
+  config(lib_include_config_name) {
+    include_dirs = includes
+  }
+
+  # Create a build rule to compile only a lib with unresolved references from other libs
+  static_library(lib_build_name) {
+    output_name = "tmp/libs/" + lib_name
+    sources = invoker.sources
+    include_dirs = includes
+    deps = building_deplib_bulders_list
+    forward_variables_from(invoker,
+                           [
+                             "configs",
+                             "cflags",
+                             "cflags_c",
+                             "cflags_cc",
+                             "cflags_objc",
+                             "cflags_objcc",
+                             "asmflags",
+                             "deps",
+                             "public_deps",
+                           ])
+  }
+
+  action(lib_name) {
+    script = "//build/libs/merge_libs.py"
+    inputs = linking_deplib_list
+    outputs = [ "$final_lib_output_name" ]
+    deps = linking_deplib_bulders_list
+    args = script_args
+  }
+}

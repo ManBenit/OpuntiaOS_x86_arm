@@ -1,0 +1,53 @@
+import("//build/userland/TEMPLATE.gni")
+
+opuntiaOS_executable("window_server") {
+  signexec = true
+  install_path = "System/"
+  sources = [
+    "src/Components/Base/BaseWindow.cpp",
+    "src/Components/Elements/Button.cpp",
+    "src/Components/LoadingScreen/LoadingScreen.cpp",
+    "src/Components/MenuBar/MenuBar.cpp",
+    "src/Components/Popup/Popup.cpp",
+    "src/Devices/Devices.cpp",
+    "src/Devices/Screen.cpp",
+    "src/IPC/Connection.cpp",
+    "src/IPC/ServerDecoder.cpp",
+    "src/Managers/Compositor.cpp",
+    "src/Managers/CursorManager.cpp",
+    "src/Managers/ResourceManager.cpp",
+    "src/Managers/WindowManager.cpp",
+    "src/main.cpp",
+  ]
+
+  if (device_type == "desktop") {
+    cflags = [ "-DTARGET_DESKTOP" ]
+    sources += [
+      "src/Target/Desktop/Window.cpp",
+      "src/Target/Desktop/WindowFrame.cpp",
+    ]
+  }
+  if (device_type == "mobile") {
+    cflags = [ "-DTARGET_MOBILE" ]
+    sources += [
+      "src/Components/ControlBar/ControlBar.cpp",
+      "src/Target/Mobile/Window.cpp",
+    ]
+  }
+
+  configs = [ "//build/userland:userland_flags" ]
+
+  if (host == "llvm") {
+    cflags += [ "-flto" ]
+  }
+
+  deplibs = [
+    "libcxx",
+    "libfoundation",
+    "libipc",
+    "libg",
+    "libapi",
+  ]
+
+  include_dirs = [ "//servers/window_server/src/" ]
+}

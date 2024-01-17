@@ -1,0 +1,231 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD obj/boot/libboot/crypto/stage2.bin.sha256.o
+LOAD obj/boot/libboot/crypto/stage2.bin.signature.o
+LOAD obj/boot/libboot/crypto/stage2.bin.uint2048.o
+LOAD obj/boot/libboot/crypto/stage2.bin.validate.o
+LOAD obj/boot/libboot/devtree/stage2.bin.devtree.o
+LOAD obj/boot/libboot/elf/stage2.bin.elf_lite.o
+LOAD obj/boot/libboot/fs/stage2.bin.ext2_lite.o
+LOAD obj/boot/libboot/log/stage2.bin.log.o
+LOAD obj/boot/libboot/mem/stage2.bin.alloc.o
+LOAD obj/boot/libboot/mem/stage2.bin.mem.o
+LOAD obj/boot/x86/stage2/drivers/stage2.bin.ata.o
+LOAD obj/boot/x86/stage2/drivers/stage2.bin.port.o
+LOAD obj/boot/x86/stage2/drivers/stage2.bin.uart.o
+LOAD obj/boot/x86/stage2/mem/stage2.bin.vm.o
+LOAD obj/boot/x86/stage2/stage2.bin.stage2.o
+LOAD obj/boot/x86/stage2/stage2.bin.stage2_entry.o
+                0x0000000000001000                _pa_base = 0x1000
+                0x0000000000001000                . = _pa_base
+                0x0000000000001000                bootloader_start = .
+
+.text           0x0000000000001000     0x3e85
+ *(.opuntiaos_boot_text)
+ .opuntiaos_boot_text
+                0x0000000000001000       0x11 obj/boot/x86/stage2/stage2.bin.stage2_entry.o
+                0x0000000000001000                _start
+ *(.text)
+ .text          0x0000000000001011      0x66c obj/boot/libboot/crypto/stage2.bin.sha256.o
+                0x0000000000001318                sha256_init
+                0x0000000000001354                sha256_update
+                0x00000000000013df                sha256_hash
+ .text          0x000000000000167d        0x0 obj/boot/libboot/crypto/stage2.bin.signature.o
+ .text          0x000000000000167d      0xaa7 obj/boot/libboot/crypto/stage2.bin.uint2048.o
+                0x00000000000016a9                uint2048_init
+                0x00000000000016ea                uint2048_init_bytes
+                0x0000000000001755                uint2048_init_bytes_be
+                0x00000000000018b6                uint2048_copy
+                0x00000000000018d9                uint2048_add
+                0x00000000000019bb                uint2048_sub
+                0x0000000000001aa6                uint2048_shl
+                0x0000000000001afa                uint2048_shr
+                0x0000000000001b53                uint2048_mult_by_digit
+                0x0000000000001c58                uint2048_mult
+                0x0000000000001ce1                uint2048_div
+                0x0000000000001e33                uint2048_pow
+                0x0000000000001fa3                uint2048_less
+                0x0000000000001ffd                uint2048_less_equal
+                0x0000000000002057                uint2048_equal
+                0x0000000000002094                uint2048_is_not_zero
+                0x00000000000020c8                uint2048_is_odd
+                0x00000000000020da                uint2048_dump
+ .text          0x0000000000002124      0x389 obj/boot/libboot/crypto/stage2.bin.validate.o
+                0x0000000000002378                validate_elf
+ .text          0x00000000000024ad      0x124 obj/boot/libboot/devtree/stage2.bin.devtree.o
+                0x00000000000024d9                devtree_start
+                0x00000000000024e3                devtree_size
+                0x00000000000024ed                devtree_init
+                0x0000000000002538                devtree_name_of_entry
+                0x000000000000254b                devtree_find_device
+ .text          0x00000000000025d1      0x2e3 obj/boot/libboot/elf/stage2.bin.elf_lite.o
+                0x00000000000025fd                elf_init_ctx
+                0x000000000000269a                elf_read_program_header
+                0x00000000000026e7                elf_read_section_header
+                0x0000000000002734                elf_load_kernel
+ .text          0x00000000000028b4      0x8c2 obj/boot/libboot/fs/stage2.bin.ext2_lite.o
+                0x00000000000028e0                _ext2_lite_get_block_len
+                0x00000000000028f8                _ext2_lite_get_offset_of_block
+                0x0000000000002914                _ext2_lite_read
+                0x00000000000029f6                _ext2_lite_read_group
+                0x0000000000002a29                _ext2_lite_read_inode
+                0x0000000000002aa8                ext2_lite_init
+                0x0000000000002b32                ext2_lite_has_in_dir
+                0x0000000000002c74                ext2_lite_scan_dir
+                0x0000000000002d6f                ext2_lite_get_inode
+                0x0000000000002e1b                _ext2_lite_get_block_of_file_lev0
+                0x0000000000002e63                _ext2_lite_get_block_of_file_lev1
+                0x0000000000002ee1                _ext2_lite_get_block_of_file_lev2
+                0x0000000000002f68                _ext2_lite_get_block_of_file
+                0x000000000000300d                ext2_lite_read_inode
+                0x000000000000312d                ext2_lite_read
+ .text          0x0000000000003176      0xa63 obj/boot/libboot/log/stage2.bin.log.o
+                0x000000000000395d                vsnprintf
+                0x00000000000039c6                snprintf
+                0x0000000000003a33                vsprintf
+                0x0000000000003a74                sprintf
+                0x0000000000003b24                log
+                0x0000000000003b4f                log_warn
+                0x0000000000003b7a                log_error
+                0x0000000000003ba5                log_not_formatted
+                0x0000000000003bcb                log_init
+ .text          0x0000000000003bd9      0x20f obj/boot/libboot/mem/stage2.bin.alloc.o
+                0x0000000000003c05                malloc_init
+                0x0000000000003c27                malloc
+                0x0000000000003c7c                malloc_aligned
+                0x0000000000003cba                free
+                0x0000000000003cc0                palloc_init
+                0x0000000000003d08                palloc
+                0x0000000000003d73                palloc_aligned
+                0x0000000000003dba                palloc_total_size
+                0x0000000000003dd1                palloc_used_size
+ .text          0x0000000000003de8      0x2f7 obj/boot/libboot/mem/stage2.bin.mem.o
+                0x0000000000003e14                strcmp
+                0x0000000000003e7a                strncmp
+                0x0000000000003ef7                strlen
+                0x0000000000003f1e                strnlen
+                0x0000000000003f4f                memset
+                0x0000000000003f83                memcpy
+                0x0000000000003fb8                memmove
+                0x0000000000004021                memccpy
+                0x000000000000407b                memcmp
+ .text          0x00000000000040df      0x37f obj/boot/x86/stage2/drivers/stage2.bin.ata.o
+                0x00000000000040df                init_ata
+                0x0000000000004159                indentify_ata_device
+                0x00000000000042b9                ata_read
+ .text          0x000000000000445e       0xbf obj/boot/x86/stage2/drivers/stage2.bin.port.o
+                0x000000000000445e                port_read8
+                0x000000000000447b                port_write8
+                0x000000000000449c                port_read16
+                0x00000000000044bb                port_write16
+                0x00000000000044dc                port_read32
+                0x00000000000044f8                port_write32
+                0x0000000000004510                port_wait_io
+ .text          0x000000000000451d      0x132 obj/boot/x86/stage2/drivers/stage2.bin.uart.o
+                0x00000000000045ce                uart_init
+                0x000000000000460f                uart_write
+ .text          0x000000000000464f      0x315 obj/boot/x86/stage2/mem/stage2.bin.vm.o
+                0x000000000000464f                vm_setup
+ .text          0x0000000000004964      0x521 obj/boot/x86/stage2/stage2.bin.stage2.o
+                0x0000000000004bce                prepare_boot_disk
+                0x0000000000004c06                prepare_fs
+                0x0000000000004caa                load_kernel
+                0x0000000000004de6                stage2
+ *(.text.*)
+
+.rodata         0x0000000000004ea0      0x367
+ *(.rodata)
+ .rodata        0x0000000000004ea0      0x120 obj/boot/libboot/crypto/stage2.bin.sha256.o
+ .rodata        0x0000000000004fc0       0xa0 obj/boot/libboot/crypto/stage2.bin.signature.o
+                0x0000000000004fc0                pub_opuntiaos_key_e
+                0x0000000000004fe0                pub_opuntiaos_key_n
+ .rodata        0x0000000000005060        0xe obj/boot/libboot/crypto/stage2.bin.uint2048.o
+ .rodata        0x000000000000506e        0xc obj/boot/libboot/crypto/stage2.bin.validate.o
+ *fill*         0x000000000000507a        0x2 
+ .rodata        0x000000000000507c       0xf6 obj/boot/libboot/log/stage2.bin.log.o
+ .rodata        0x0000000000005172       0x22 obj/boot/libboot/mem/stage2.bin.alloc.o
+ .rodata        0x0000000000005194        0x4 obj/boot/x86/stage2/drivers/stage2.bin.ata.o
+ .rodata        0x0000000000005198       0x6f obj/boot/x86/stage2/stage2.bin.stage2.o
+ *(.rodata.*)
+
+.data           0x0000000000005207        0x0
+ *(.data)
+ .data          0x0000000000005207        0x0 obj/boot/libboot/crypto/stage2.bin.sha256.o
+ .data          0x0000000000005207        0x0 obj/boot/libboot/crypto/stage2.bin.signature.o
+ .data          0x0000000000005207        0x0 obj/boot/libboot/crypto/stage2.bin.uint2048.o
+ .data          0x0000000000005207        0x0 obj/boot/libboot/crypto/stage2.bin.validate.o
+ .data          0x0000000000005207        0x0 obj/boot/libboot/devtree/stage2.bin.devtree.o
+ .data          0x0000000000005207        0x0 obj/boot/libboot/elf/stage2.bin.elf_lite.o
+ .data          0x0000000000005207        0x0 obj/boot/libboot/fs/stage2.bin.ext2_lite.o
+ .data          0x0000000000005207        0x0 obj/boot/libboot/log/stage2.bin.log.o
+ .data          0x0000000000005207        0x0 obj/boot/libboot/mem/stage2.bin.alloc.o
+ .data          0x0000000000005207        0x0 obj/boot/libboot/mem/stage2.bin.mem.o
+ .data          0x0000000000005207        0x0 obj/boot/x86/stage2/drivers/stage2.bin.ata.o
+ .data          0x0000000000005207        0x0 obj/boot/x86/stage2/drivers/stage2.bin.port.o
+ .data          0x0000000000005207        0x0 obj/boot/x86/stage2/drivers/stage2.bin.uart.o
+ .data          0x0000000000005207        0x0 obj/boot/x86/stage2/mem/stage2.bin.vm.o
+ .data          0x0000000000005207        0x0 obj/boot/x86/stage2/stage2.bin.stage2.o
+ *(.data.*)
+
+.bss            0x0000000000005220     0x7544
+ *(.bss)
+ .bss           0x0000000000005220        0x0 obj/boot/libboot/crypto/stage2.bin.sha256.o
+ .bss           0x0000000000005220        0x0 obj/boot/libboot/crypto/stage2.bin.signature.o
+ .bss           0x0000000000005220        0x0 obj/boot/libboot/crypto/stage2.bin.uint2048.o
+ .bss           0x0000000000005220     0x1000 obj/boot/libboot/crypto/stage2.bin.validate.o
+                0x0000000000005220                tmp_buf
+ .bss           0x0000000000006220       0x10 obj/boot/libboot/devtree/stage2.bin.devtree.o
+ .bss           0x0000000000006230        0x0 obj/boot/libboot/elf/stage2.bin.elf_lite.o
+ *fill*         0x0000000000006230       0x10 
+ .bss           0x0000000000006240     0x6420 obj/boot/libboot/fs/stage2.bin.ext2_lite.o
+                0x0000000000006240                superblock
+                0x0000000000006640                active_drive_desc
+ .bss           0x000000000000c660        0x4 obj/boot/libboot/log/stage2.bin.log.o
+ .bss           0x000000000000c664       0x14 obj/boot/libboot/mem/stage2.bin.alloc.o
+                0x000000000000c664                _malloc_next_addr
+                0x000000000000c668                _malloc_end_addr
+                0x000000000000c66c                _palloc_start_addr
+                0x000000000000c670                _palloc_next_addr
+                0x000000000000c674                _palloc_end_addr
+ .bss           0x000000000000c678        0x0 obj/boot/libboot/mem/stage2.bin.mem.o
+ *fill*         0x000000000000c678        0x8 
+ .bss           0x000000000000c680       0x28 obj/boot/x86/stage2/drivers/stage2.bin.ata.o
+                0x000000000000c680                active_ata_drive
+ .bss           0x000000000000c6a8        0x0 obj/boot/x86/stage2/drivers/stage2.bin.port.o
+ .bss           0x000000000000c6a8        0x0 obj/boot/x86/stage2/drivers/stage2.bin.uart.o
+ .bss           0x000000000000c6a8        0x0 obj/boot/x86/stage2/mem/stage2.bin.vm.o
+ *fill*         0x000000000000c6a8       0x18 
+ .bss           0x000000000000c6c0       0xa4 obj/boot/x86/stage2/stage2.bin.stage2.o
+                0x000000000000c6c0                bootdesc_ptr
+ *(.bss.*)
+ *(COMMON)
+
+.stack          0x000000000000d000     0x1000
+                0x000000000000d000                STACK_PHYZ_BASE = .
+                0x000000000000e000                . = (. + 0x1000)
+ *fill*         0x000000000000d000     0x1000 
+                0x000000000000e000                STACK_PHYZ_TOP = .
+OUTPUT(stage2.bin binary)
+
+.comment        0x0000000000000000      0x11d
+ .comment       0x0000000000000000       0x13 obj/boot/libboot/crypto/stage2.bin.sha256.o
+ .comment       0x0000000000000013       0x13 obj/boot/libboot/crypto/stage2.bin.signature.o
+ .comment       0x0000000000000026       0x13 obj/boot/libboot/crypto/stage2.bin.uint2048.o
+ .comment       0x0000000000000039       0x13 obj/boot/libboot/crypto/stage2.bin.validate.o
+ .comment       0x000000000000004c       0x13 obj/boot/libboot/devtree/stage2.bin.devtree.o
+ .comment       0x000000000000005f       0x13 obj/boot/libboot/elf/stage2.bin.elf_lite.o
+ .comment       0x0000000000000072       0x13 obj/boot/libboot/fs/stage2.bin.ext2_lite.o
+ .comment       0x0000000000000085       0x13 obj/boot/libboot/log/stage2.bin.log.o
+ .comment       0x0000000000000098       0x13 obj/boot/libboot/mem/stage2.bin.alloc.o
+ .comment       0x00000000000000ab       0x13 obj/boot/libboot/mem/stage2.bin.mem.o
+ .comment       0x00000000000000be       0x13 obj/boot/x86/stage2/drivers/stage2.bin.ata.o
+ .comment       0x00000000000000d1       0x13 obj/boot/x86/stage2/drivers/stage2.bin.port.o
+ .comment       0x00000000000000e4       0x13 obj/boot/x86/stage2/drivers/stage2.bin.uart.o
+ .comment       0x00000000000000f7       0x13 obj/boot/x86/stage2/mem/stage2.bin.vm.o
+ .comment       0x000000000000010a       0x13 obj/boot/x86/stage2/stage2.bin.stage2.o

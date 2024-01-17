@@ -1,0 +1,24 @@
+import("//build/libs/TEMPLATE.gni")
+import("//libs/libc/LIBC_SOURCES.gni")
+
+opuntiaOS_static_library("libc") {
+  sources = libc_sources
+
+  # Private LibC sources.
+  sources += [ "init/_init.c" ]
+
+  if (target_arch == "arm32") {
+    sources += [ "string/routines/arm32/memset.S" ]
+  }
+
+  include_dirs = [
+    "include/",
+    "//libs/",
+  ]
+
+  configs = [ "//build/libs:lib_flags" ]
+
+  if (host == "llvm") {
+    cflags = [ "-flto" ]
+  }
+}
