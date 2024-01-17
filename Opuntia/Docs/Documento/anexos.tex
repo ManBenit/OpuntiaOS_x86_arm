@@ -1,0 +1,591 @@
+\section{Anexos \label{sec:anexos}}
+
+
+
+
+\subsection{Estructuras de datos del administrador de procesos}
+\begin{lstlisting}[
+	language=C,
+	label=prog:struct_proc,
+	caption={Estructura de datos que define un proceso.\\
+	Archivo: \texttt{kernel/include/tasking/proc.h}.}
+	]
+	struct proc {
+		vm_address_space_t* address_space;
+		
+		pid_t pid;
+		pid_t ppid;
+		pid_t pgid;
+		uint32_t prio;
+		uint32_t status;
+		struct thread* main_thread;
+		
+		spinlock_t lock;
+		
+		uid_t uid;
+		gid_t gid;
+		uid_t euid;
+		gid_t egid;
+		uid_t suid;
+		gid_t sgid;
+		
+		file_t* proc_file;
+		path_t cwd;
+		file_descriptor_t* fds;
+		
+		int exit_code;
+		
+		bool is_kthread;
+		
+		// Trace data
+		bool is_tracee;
+	};
+	typedef struct proc proc_t;
+\end{lstlisting}
+
+\begin{lstlisting}[
+	language=C,
+	label=prog:struct_thread,
+	caption={Estructura de datos \texttt{thread} para soportar hilos de ejecución de procesos.\\
+	Archivo: \texttt{kernel/include/tasking/thread.h}.}
+	]
+	struct thread {
+		struct proc* process;
+		pid_t tid;
+		uint32_t status;
+		
+		/* Kernel data */
+		kmemzone_t kstack;
+		context_t* context; // context of kernel's registers
+		trapframe_t* tf;
+		#ifdef FPU_ENABLED
+		fpu_state_t* fpu_state;
+		#endif
+		
+		/* Scheduler data */
+		struct thread* sched_prev;
+		struct thread* sched_next;
+		int last_cpu;
+		time_t ticks_until_preemption;
+		time_t start_time_in_ticks; // Time when the task was put to run.
+		
+		/* Blocker data */
+		blocker_t blocker;
+		union {
+			blocker_join_t join;
+			blocker_rw_t rw;
+			blocker_sleep_t sleep;
+			blocker_select_t select;
+		} blocker_data;
+		
+		/* Stat data */
+		time_t stat_total_running_ticks;
+		
+		uint32_t signals_mask;
+		uint32_t pending_signals_mask;
+		void* signal_handlers[SIGNALS_CNT];
+	};
+	typedef struct thread thread_t;
+	
+	#define THREADS_PER_NODE (128)
+	struct thread_list_node {
+		thread_t thread_storage[THREADS_PER_NODE];
+		struct thread_list_node* next;
+		int empty_spots;
+	};
+	typedef struct thread_list_node thread_list_node_t;
+	
+	struct thread_list {
+		struct thread_list_node* head;
+		struct thread_list_node* next_empty_node;
+		int next_empty_index;
+		spinlock_t lock;
+		struct thread_list_node* tail;
+	};
+	typedef struct thread_list thread_list_t;
+\end{lstlisting}
+
+\begin{lstlisting}[
+	language=C,
+		label=prog:struct_signals,
+		caption={Definición de señales para los procesos.\\
+		Archivo: \texttt{kernel/include/libkern/bits/signal.h}.}
+	]
+	#ifndef _KERNEL_LIBKERN_BITS_SIGNAL_H
+	#define _KERNEL_LIBKERN_BITS_SIGNAL_H
+	
+	#define SIGHUP 1
+	#define SIGINT 2
+	#define SIGQUIT 3
+	#define SIGILL 4
+	#define SIGTRAP 5
+	#define SIGABRT 6
+	#define SIGIOT 6
+	#define SIGBUS 7
+	#define SIGFPE 8
+	#define SIGKILL 9
+	#define SIGUSR1 10
+	#define SIGSEGV 11
+	#define SIGUSR2 12
+	#define SIGPIPE 13
+	#define SIGALRM 14
+	#define SIGTERM 15
+	#define SIGSTKFLT 16
+	#define SIGCHLD 17
+	#define SIGCONT 18
+	#define SIGSTOP 19
+	#define SIGTSTP 20
+	#define SIGTTIN 21
+	#define SIGTTOU 22
+	#define SIGURG 23
+	#define SIGXCPU 24
+	#define SIGXFSZ 25
+	#define SIGVTALRM 26
+	#define SIGPROF 27
+	#define SIGWINCH 28
+	#define SIGIO 29
+	#define SIGPOLL SIGIO
+	#define SIGPWR 30
+	#define SIGSYS 31
+	
+	typedef void (*sighandler_t)(int);
+	
+	#define SIG_DFL ((sighandler_t)0)
+	#define SIG_ERR ((sighandler_t)-1)
+	#define SIG_IGN ((sighandler_t)1)
+	
+	#endif // _KERNEL_LIBKERN_BITS_SIGNAL_H
+\end{lstlisting}
+
+
+
+
+
+
+\subsection{Estructuras de datos del planificador}
+
+\begin{lstlisting}[
+		language=C,
+		label=prog:struct_runqueue,
+		caption={Estruturas \texttt{runqueue} y \texttt{sched\_data}\\
+		Archivo: \texttt{kernel/include/tasking/bits/sched.h}.}
+	]
+	struct runqueue {
+		struct thread* head;
+		struct thread* tail;
+	};
+	typedef struct runqueue runqueue_t;
+	
+	struct sched_data {
+		int next_read_prio;
+		runqueue_t* master_buf;
+		runqueue_t* slave_buf;
+		int enqueued_tasks;
+	};
+	typedef struct sched_data sched_data_t;
+\end{lstlisting}
+
+\begin{lstlisting}[
+	language=C,
+	label=prog:struct_trapframe_x86,
+	caption={Estructura de datos del \textit{trapframe} para \texttt{x86}.\\
+	Archivo: \texttt{kernel/include/platform/x86/i386/tasking/trapframe.h}.}
+	]
+	struct PACKED trapframe {
+		// registers as pushed by pusha
+		uint32_t edi;
+		uint32_t esi;
+		uint32_t ebp;
+		uint32_t oesp; // useless & ignored
+		uint32_t ebx;
+		uint32_t edx;
+		uint32_t ecx;
+		uint32_t eax;
+		
+		// rest of trap frame
+		uint16_t gs;
+		uint16_t padding1;
+		uint16_t fs;
+		uint16_t padding2;
+		uint16_t es;
+		uint16_t padding3;
+		uint16_t ds;
+		uint16_t padding4;
+		uint32_t int_no;
+		
+		// below here defined by x86 hardware
+		uint32_t err;
+		uint32_t eip;
+		uint16_t cs;
+		uint16_t padding5;
+		uint32_t eflags;
+		
+		// below here only when crossing rings, such as from user to kernel
+		uint32_t esp;
+		uint16_t ss;
+		uint16_t padding6;
+	};
+	typedef struct trapframe trapframe_t;
+\end{lstlisting}
+
+\begin{lstlisting}[
+	language=C,
+	label=prog:struct_trapframe_ARM,
+	caption={Estructura de datos del \textit{trapframe} para \texttt{ARM}.\\
+		Archivo: \texttt{kernel/include/platform/arm32/tasking/trapframe.h}.}
+	]
+	typedef struct {
+		uint32_t user_flags;
+		uint32_t user_sp;
+		uint32_t user_lr;
+		uint32_t r[13];
+		uint32_t user_ip;
+	} PACKED trapframe_t;
+\end{lstlisting}
+
+
+\begin{lstlisting}[
+	language=C,
+	label=prog:struct_context_x86,
+	caption={Estructura de datos del \textit{context} para \texttt{x86}.\\
+		Archivo: \texttt{kernel/include/platform/x86/i386/tasking/context.h}.}
+	]
+	struct PACKED context {
+		uint32_t edi;
+		uint32_t esi;
+		uint32_t ebx;
+		uint32_t ebp;
+		uint32_t eip;
+	};
+	typedef struct context context_t;
+\end{lstlisting}
+
+\begin{lstlisting}[
+	language=C,
+	label=prog:struct_context_ARM,
+	caption={Estructura de datos del \textit{context} para \texttt{ARM}.\\
+		Archivo: \texttt{kernel/include/platform/arm32/tasking/context.h}.}
+	]
+	typedef struct {
+		uint32_t r[9];
+		uint32_t lr;
+	} PACKED context_t;
+\end{lstlisting}
+
+
+\newpage
+\subsection{Estructuras de datos del administrador de memoria}
+\begin{lstlisting}[
+	language=C,
+	label=prog:struct_mapentry,
+	caption={Estructura de datos de la tabla de mapeo de memoria.\\
+		Archivo: \texttt{kernel/include/platform/generic/vmm/mapping\_table.h}.}
+	]
+	struct mapping_entry {
+		uintptr_t paddr;
+		uintptr_t vaddr;
+		size_t pages;
+		uint32_t flags;
+		uint32_t last; // 1 if an element is the last.
+	};
+	typedef struct mapping_entry mapping_entry_t;
+	
+	extern mapping_entry_t extern_mapping_table[]; // Maps after kernel tables are ready, so can be outside kernelspace
+\end{lstlisting}
+
+\begin{lstlisting}[
+	language=C,
+	label=prog:struct_memzone,
+	caption={Estructura de datos de la zona de memoria usada por un archivo.\\
+		Archivo: \texttt{kernel/include/mem/memzone.h}.}
+	]
+	struct memzone {
+		uintptr_t vaddr;
+		size_t len;
+		mmu_flags_t mmu_flags;
+		uint32_t type;
+		file_t* file;
+		off_t file_offset;
+		size_t file_size;
+		struct vm_ops* ops;
+	};
+	typedef struct memzone memzone_t;
+\end{lstlisting}
+
+\begin{lstlisting}[
+	language=C,
+	label=prog:struct_memop,
+	caption={Estructura de datos de las operaciones que se pueden realizar a la memoria.\\
+		Archivo: \texttt{kernel/include/mem/vmm.h}.}
+	]
+	struct vm_ops {
+		int (*load_page_content)(struct memzone* zone, uintptr_t vaddr);
+		int (*swap_page_mode)(struct memzone* zone, uintptr_t vaddr);
+		int (*restore_swapped_page)(struct memzone* zone, uintptr_t vaddr);
+	};
+	typedef struct vm_ops vm_ops_t;
+\end{lstlisting}
+
+\begin{lstlisting}[
+	language=C,
+	label=prog:struct_memvspace,
+	caption={Estructura de datos del espacio virtual de la memoria.\\
+		Archivo: \texttt{kernel/include/mem/vm\_address\_space.h}.}
+	]
+	struct vm_address_space {
+		ptable_t* pdir;
+		dynamic_array_t zones;
+		int count;
+		spinlock_t lock;
+	};
+	typedef struct vm_address_space vm_address_space_t;
+\end{lstlisting}
+
+\begin{lstlisting}[
+	language=C,
+	label=prog:struct_mempaget,
+	caption={Estructura de datos de la tabla de páginas.\\
+		Archivo: \texttt{kernel/include/mem/bits/vm.h}.}
+	]
+	typedef struct {
+		ptable_entity_t entities[1];
+	} ptable_t;
+\end{lstlisting}
+
+
+\newpage
+\subsection{Estructuras de datos del sistema de archivos}
+\begin{lstlisting}[
+	language=C,
+	label=prog:struct_files,
+	caption={Definición de archivo y descriptor de archivos.\\
+		Archivo: \texttt{kernel/include/fs/vfs.h}.}
+	]
+	struct file {
+		size_t count;
+		file_type_t type;
+		union {
+			dentry_t* dentry; // type == FTYPE_FILE
+			struct socket* socket; // type == FTYPE_SOCKET
+		};
+		uint32_t flags;
+		path_t path;
+		file_ops_t* ops;
+		
+		// Used by socket to keep data.
+		void* auxdata;
+		
+		// Protects flags.
+		spinlock_t lock;
+	};
+	typedef struct file file_t;
+	
+	struct file_descriptor {
+		file_t* file;
+		off_t offset;
+		int flags;
+	};
+	typedef struct file_descriptor file_descriptor_t;
+\end{lstlisting}
+
+\begin{lstlisting}[
+	language=C,
+	label=prog:struct_ext2,
+	caption={Estructuras de datos del sistema de archivos \texttt{ext2} ligero.\\
+		Archivo: \texttt{boot/libboot/fs/ext2\_lite.h}.}
+	]
+	typedef struct {
+		uint32_t inodes_count;
+		uint32_t blocks_count;
+		uint32_t r_blocks_count;
+		uint32_t free_blocks_count;
+		uint32_t free_inodes_count;
+		uint32_t first_data_block;
+		uint32_t log_block_size;
+		uint32_t log_frag_size;
+		uint32_t blocks_per_group;
+		uint32_t frags_per_group;
+		uint32_t inodes_per_group;
+		uint32_t mtime;
+		uint32_t wtime;
+		uint16_t mnt_count;
+		uint16_t max_mnt_count;
+		uint16_t magic;
+		uint16_t state;
+		uint16_t errors;
+		uint16_t minor_rev_level;
+		uint32_t lastcheck;
+		uint32_t checkinterval;
+		uint32_t creator_os;
+		uint32_t rev_level;
+		uint16_t def_resuid;
+		uint16_t def_resgid;
+		
+		uint32_t first_ino;
+		uint16_t inode_size;
+		uint16_t block_group_nr;
+		uint32_t feature_compat;
+		uint32_t feature_incompat;
+		uint32_t feature_ro_compat;
+		uint8_t uuid[16];
+		uint8_t volume_name[16];
+		uint8_t last_mounted[64];
+		uint32_t algo_bitmap;
+		
+		uint8_t prealloc_blocks;
+		uint8_t prealloc_dir_blocks;
+		
+		// current jurnalling is unsupported
+		uint8_t unused[1024 - 206];
+	} superblock_t;
+
+	typedef struct {
+		uint32_t block_bitmap;
+		uint32_t inode_bitmap;
+		uint32_t inode_table;
+		uint16_t free_blocks_count;
+		uint16_t free_inodes_count;
+		uint16_t used_dirs_count;
+		uint16_t pad;
+		uint8_t reserved[12];
+	} group_desc_t;
+
+	typedef struct {
+		uint16_t mode;
+		uint16_t uid;
+		uint32_t size;
+		uint32_t atime;
+		uint32_t ctime;
+		uint32_t mtime;
+		uint32_t dtime;
+		uint16_t gid;
+		uint16_t links_count;
+		uint32_t blocks;
+		uint32_t flags;
+		uint32_t osd1;
+		uint32_t block[15];
+		uint32_t generation;
+		uint32_t file_acl;
+		uint32_t dir_acl;
+		uint32_t faddr;
+		uint32_t osd2[3];
+	} inode_t;
+
+	typedef struct {
+		uint32_t inode;
+		uint16_t rec_len;
+		uint8_t name_len;
+		uint8_t file_type;
+		char* name; // may be a problematic for 64bit versions
+	} dir_entry_t;
+\end{lstlisting}
+
+
+
+
+\subsection{Estructuras de datos de los controladores de dispositivo}
+\begin{lstlisting}[
+	language=C,
+	label=prog:struct_device,
+	caption={Definición de dispositivos.\\
+		Archivo: \texttt{kernel/include/drivers/bits/device.h}.}
+	]
+	struct device_desc_pci {
+		uint8_t bus;
+		uint8_t device;
+		uint8_t function;
+		uint16_t vendor_id;
+		uint16_t device_id;
+		uint8_t class_id;
+		uint8_t subclass_id;
+		uint8_t interface_id;
+		uint8_t revision_id;
+		uint32_t interrupt;
+		uint32_t port_base;
+	};
+	typedef struct device_desc_pci device_desc_pci_t;
+	
+	struct device_desc {
+		int type;
+		union {
+			device_desc_pci_t pci;
+			device_desc_devtree_t devtree;
+		};
+		uint32_t args[4];
+	};
+	typedef struct device_desc device_desc_t;
+	
+	struct device {
+		int id;
+		int type;
+		bool is_virtual;
+		int driver_id;
+		
+		spinlock_t lock;
+		device_desc_t device_desc;
+	};
+	typedef struct device device_t;
+	
+	
+\end{lstlisting}
+
+\begin{lstlisting}[
+	language=C,
+	label=prog:struct_devtree,
+	caption={Definición del árbol de dispositivos.\\
+		Archivo: \texttt{kernel/include/drivers/devtree.h}.}
+	]
+	
+	struct PACKED devtree_header {
+		char signature[8];
+		uint32_t revision;
+		uint32_t flags;
+		uint32_t entries_count;
+		uint32_t name_list_offset;
+	};
+	typedef struct devtree_header devtree_header_t;
+	
+	struct PACKED devtree_entry {
+		uint32_t type;
+		uint32_t flags;
+		uint64_t region_base;
+		uint64_t region_size;
+		uint32_t irq_lane;
+		uint32_t irq_flags;
+		uint32_t irq_priority;
+		uint32_t rel_name_offset;
+		uint64_t aux1;
+		uint64_t aux2;
+		uint64_t aux3;
+		uint64_t aux4;
+	};
+	typedef struct devtree_entry devtree_entry_t;
+\end{lstlisting}
+
+
+
+
+
+\subsection{Algoritmo de arreglo dinámico}
+\begin{lstlisting}[
+	language=C,
+	label=prog:struct_dynamic_array,
+	caption={Estructura de datos del Algoritmo de arreglo dinámico.\\
+		Archivo: \texttt{kernel/include/algo/dynamic\_array.h}.}
+	]
+	struct dynamic_array_bucket {
+		void* data;
+		struct dynamic_array_bucket* next;
+		size_t capacity;
+		size_t size;
+	};
+	typedef struct dynamic_array_bucket dynamic_array_bucket_t;
+	
+	struct dynamic_array {
+		dynamic_array_bucket_t* head;
+		dynamic_array_bucket_t* tail;
+		size_t size; /* number of elements in vector */
+		size_t element_size; /* size of elements in bytes */
+	};
+	typedef struct dynamic_array dynamic_array_t;
+\end{lstlisting}

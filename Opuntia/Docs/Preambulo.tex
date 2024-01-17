@@ -1,0 +1,327 @@
+\documentclass[letterpaper, 12pt]{article} %10pt por default
+%\usepackage[paper=a4paper,left=24mm,right=24mm,top=20mm,bottom=20mm]{geometry}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{lipsum} %por si hay que hacer pruebas de como se ver\'ia
+\usepackage{graphicx}
+%\usepackage{rotating}
+\usepackage{paracol}
+\usepackage{multicol}
+\usepackage[numbers]{natbib}
+\usepackage{setspace}
+\usepackage{xstring}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{xargs}
+\usepackage{bbding} %para las palomitas
+\usepackage{ragged2e}
+\usepackage[hidelinks]{hyperref}
+\usepackage{wrapfig}
+\usepackage{lscape}
+\usepackage{rotating}
+\usepackage{epstopdf}
+\usepackage{amsmath}
+\usepackage{amssymb}
+%\usepackage{caption}
+%\usepackage{subcaption}
+\usepackage{subfig}
+%\usepackage[ruled,linesnumbered]{algorithm2e}
+\usepackage{listings}
+%\usepackage[toc, acronym]{glossaries}
+\usepackage{verbatim}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{mathrsfs}
+\usepackage[makeroom]{cancel}
+\usepackage[firstpage=true]{background}
+
+
+\usepackage{tikz}
+\usetikzlibrary{positioning,shadows,backgrounds,automata,arrows,arrows.meta}
+%\usetikzlibrary{arrows} %arrows meta
+%\usepackage{tikz-qtree} % Easy tree drawing tool
+%\tikzset{every tree node/.style={align=center,anchor=north}, level distance=2cm} % Configuration for q-trees
+
+
+\usepackage[breakable]{tcolorbox}
+
+
+
+%Para estilo fancy
+%\usepackage{fancyhdr}
+%\usepackage{lastpage}fenter
+%\pagestyle{fancy}
+%\fancyhf{}
+
+%\renewcommand{\headrulewidth}{0pt} %Quitar la l\'inea del encabezado de fancy
+%\rfoot{\footnotesize{ P\'agina \thepage \hspace{1pt} de \pageref{LastPage} }}
+
+
+
+
+
+\decimalpoint
+%If you use either the babel or polyglossia package you'll have to change the name for the particular language
+%you use with babel or polyglossia.
+\addto\captionsspanish{% Replace "english" with the language you use
+	\renewcommand{\contentsname}{Tabla de contenido}%
+	\renewcommand{\listfigurename}{Lista de figuras}
+	\renewcommand{\listtablename}{Lista de tablas}
+	\renewcommand{\lstlistlistingname}{Lista de programas}
+	\renewcommand{\glossaryname}{Glosario}
+	% NOMBRES DE FIGURA, TABLA, ETC.
+	%\renewcommand{\thefigure}{Fig.(\arabic{figure})}
+	\renewcommand{\figurename}{Figura}
+	%\renewcommand{\thetable}{Tab.(\arabic{table})}
+	\renewcommand{\tablename}{Tabla}
+	%\renewcommand{\theequation}{Eq.(\arabic{equation})}
+	\renewcommand{\lstlistingname}{Programa}
+}
+% RENOMBRAR BIBLIOGRAF\'IA
+%\renewcommand{\bibname}{\section{Referencias}}
+%\renewcommand{\theenumi}{\Alph{enumi}}
+\newcommand{\reftab}[1]{Tab.(\ref{#1})}
+\newcommand{\reffig}[1]{Fig.(\ref{#1})}
+\newcommand{\refeq}[1]{Ec.(\ref{#1})}
+\newcommand{\refexp}[1]{Exp.(\ref{#1})}
+\newcommand{\refdef}[1]{Def.(\ref{#1})}
+\newcommand{\refsec}[1]{Sec.(\ref{#1})}
+\newcommand{\refssec}[1]{Subsec.(\ref{#1})}
+\newcommand{\refej}[1]{Ej.(\ref{#1})}
+\newcommand{\refprog}[1]{Prog.(\ref{#1})}
+
+
+% SIEMRPE EXISTIR\'A UNA CARPETA IMG
+\graphicspath{{./img/}}
+
+% ESPACIO ENTRE COLUMNAS DE MULTICOL
+\setlength{\columnsep}{1cm}
+
+% INTERLINEADO
+\setstretch{1} %
+
+% SEPARACI\'ON ENTRE P\'ARRAFOS
+\setlength{\parskip}{10pt}
+
+% BORRAR SANGR\'IA EN GENERAL
+\setlength\parindent{0pt}
+
+
+% CONFIGURACI\'ON DE HIPERV\'INCULOS
+%\hypersetup{
+	%    colorlinks=true,
+	%    linkcolor=black,
+	%    urlcolor=magenta
+	%}
+
+% TAMA\~NO DE LA HOJA
+\geometry{
+	%headsep= 0pt,
+	%head=0pt,
+	%ignoreall,
+	hmargin= {3.5cm, 3.5cm}, %izquierda, derecha
+	vmargin= {2.5cm, 2.5cm} %arriba, abajo
+}
+
+
+% PREGUNTA Y RESPUESTA (pregunta dentro de itemizador)
+\newcommand{\preg}[1][Pregunta]{
+	\item \textbf{#1} \\
+}
+\newcommand{\resp}[1][Respuesta]{
+	\textit{#1} \ \\
+}
+
+% ELEMENTO LIBRE DE ITEMIZADOR
+\newcommand{\itemlibre}[1]{
+	\tab - #1. \\
+}
+
+% CONCEPTO DE GLOSARIO: 1->llave, 2->concepto, 3->descripcion
+% Requiere libreria glossaries
+\newcommand{\itemg}[2]{
+	\item \textbf{#1} #2 
+	
+	\enter
+	
+}
+
+% ESPACIADORES
+\newcommand{\enter}{\vspace{0.5cm}}
+\newcommand{\tab}{\hspace{1cm}}
+
+% L\'INEA PARA LLENADO (param: medida de la l\'inea en mm)
+\newcommand{\sublinea}[1]{
+	\rule{#1mm}{0.1mm}
+	<}
+
+% LEYENDAS DE IMAGEN ALTERADAS A CURSIVA
+\newcommand{\captionit}[1]{
+	\caption{\textit{#1}}
+}
+\newcommand{\subcaptionit}[1]{
+	\subcaption{\textit{#1}}
+}
+
+% CUADRO DE REMARCACI\'ON
+\newenvironment{remark}[1]{
+	\begin{tcolorbox}[
+		colback= myNaranja!25,
+		colframe= blue254!75,
+		title=#1,
+		arc= 3mm,
+		sharp corners= northwest
+		]
+		\fontfamily{gag}\selectfont
+	}{\end{tcolorbox}}
+
+\newcounter{cteorema}
+\newenvironment{theo}[1]{
+	\addtocounter{cteorema}{1}
+	\begin{tcolorbox}[
+		colback=orange!5,
+		colframe=blue!50!black,
+		title= \textbf{Teorema \thesection.\arabic{cteorema}. #1},
+		arc= 3mm,
+		sharp corners= north
+		]
+		\fontfamily{gag}\selectfont
+	}{\end{tcolorbox}}
+
+\newcounter{cejemplo}
+\newenvironment{ejem}[1]{
+	\refstepcounter{cejemplo}
+	\begin{tcolorbox}[
+		breakable,
+		colback=blue!5,
+		colframe=blue!75!black,
+		title= \textbf{Ejemplo \arabic{cejemplo}. #1},
+		arc= 3mm,
+		sharp corners= all
+		]
+		\fontfamily{gag}\selectfont
+	}{\end{tcolorbox}}
+
+\newcounter{cdefinicion}
+\newenvironment{defon}[1]{
+	\addtocounter{cdefinicion}{1}
+	\begin{tcolorbox}[
+		colback=orange!20,
+		colframe=blue254!75,
+		title= \textbf{Definici\'on \thesection.\arabic{cdefinicion}. #1},
+		arc= 3mm,
+		sharp corners= west
+		%breakable,
+		%enhanced
+		]
+		\fontfamily{gag}\selectfont
+	}{\end{tcolorbox}}
+
+
+
+% CONVERSI\'ON DE CONTADORES A GLOBALES
+%Para hacer global el contador de figura y no se repita al hacer un paracol
+\globalcounter{figure}
+\globalcounter{equation}
+
+
+
+
+
+
+
+
+% COLORES DE PORTADA
+\definecolor{myAzul}{HTML}{234ECA}
+\definecolor{blue254}{HTML}{02528F}
+\definecolor{myVerde}{HTML}{36A736}
+\definecolor{myNaranja}{HTML}{FF4312}
+\definecolor{guinda}{HTML}{660000}
+\definecolor{azul}{HTML}{1A079F}
+\definecolor{negro}{HTML}{000000}
+\definecolor{blanco}{HTML}{FFFFFF}
+\definecolor{dorado}{HTML}{996515}
+\definecolor{ududff}{rgb}{0.30196078431372547,0.30196078431372547,1}
+\definecolor{template_blue}{HTML}{003473}   % Color of Leiden University logo (Lei-Blauw)
+\definecolor{subtitle}{cmyk}{0,0,0,0}       % Color for subtitle (white)
+\definecolor{template_text}{HTML}{434655}   % Color for text
+\definecolor{template_lightgrey}{HTML}{A8AABC}  % Color of the chapter banner   
+
+
+
+
+% ALINEAR A LA DERECHA LOS N\'UMEROS DE FOOTNOTE
+%\footnotemargin{\@makefnmark\hss}
+
+
+
+
+% ESTILO PARA LISTINGS
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\ttfamily\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=1
+}
+
+\lstset{style=mystyle}
+
+
+
+
+\makeatletter
+\newcommand\binomialCoefficient[2]{%
+	% Store values 
+	\c@pgf@counta=#1% n
+	\c@pgf@countb=#2% k
+	%
+	% Take advantage of symmetry if k > n - k
+	\c@pgf@countc=\c@pgf@counta%
+	\advance\c@pgf@countc by-\c@pgf@countb%
+	\ifnum\c@pgf@countb>\c@pgf@countc%
+	\c@pgf@countb=\c@pgf@countc%
+	\fi%
+	%
+	% Recursively compute the coefficients
+	\c@pgf@countc=1% will hold the result
+	\c@pgf@countd=0% counter
+	\pgfmathloop% c -> c*(n-i)/(i+1) for i=0,...,k-1
+	\ifnum\c@pgf@countd<\c@pgf@countb%
+	\multiply\c@pgf@countc by\c@pgf@counta%
+	\advance\c@pgf@counta by-1%
+	\advance\c@pgf@countd by1%
+	\divide\c@pgf@countc by\c@pgf@countd%
+	\repeatpgfmathloop%
+	\the\c@pgf@countc%
+}
+\makeatother
+
+
+
+
+
+
+
+
+
+
+
+

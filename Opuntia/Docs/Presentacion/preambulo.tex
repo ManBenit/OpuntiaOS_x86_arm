@@ -1,0 +1,64 @@
+\section{Preámbulo}
+\begin{frame}{Antecedentes}
+	OpuntiaOS es un sistema operativo gratuito, de código abierto, disponible
+	en su 
+	\href{https://github.com/opuntiaOS-Project/opuntiaOS}{\textcolor{blue}{repositorio}}
+	de \texttt{GitHub}.
+\end{frame}
+
+\begin{frame}{Antecedentes}
+	De acuerdo con su descripción:
+	\begin{center}
+		\begin{minipage}{10cm}
+			\itshape
+			``opuntiaOS - un sistema opetativo que soporta x86 y ARMv7. Proporciona un kernel con excelentes características como SMP and Ext2, bibliotecas de tiempo de ejecución personalizadas para C/C++/ObjC y bibliotecas para UI.''
+		\end{minipage}
+	\end{center} 
+\end{frame}
+
+
+\begin{frame}{Antecedentes}
+	Los principales directorios, relacionados con la teoría del curso, son:
+	\begin{itemize} \setlength\itemsep{0pt}
+		%\item \texttt{algo}: Algoritmos y estructuras usadas por el \textit{kernel}.
+		\item \texttt{drivers}: Controladores de las plataformas soportadas.
+		\item \texttt{fs}: Implementación del VFS y FS soportados.
+		%\item \texttt{io}: Elementos de comunicación.
+		%\item \texttt{libkern}: Librería de soporte para el \textit{kernel}.
+		\item \texttt{mem}: Manejadores de memoria física y virtual.
+		\item \texttt{platform}: Código para la arquitectura \texttt{ARM}.
+		\item \texttt{syscalls}: Implementación de \texttt{syscalls}.
+		%\item \texttt{tasking}: Mecanismos de control de tareas.
+		\item \texttt{time}: Manejador de tiempo.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Ninja}
+	\texttt{Ninja} es un sistema de construcción pequeño centrado en la velocidad que, a diferencia de otros sistemas de compilación, está diseñado para que sus archivos de entrada sean generados por un sistema de compilación de nivel superior y está diseñado para ejecutar compilaciones lo más rápido posible.
+\end{frame}
+
+
+\begin{frame}{GN}
+	GN es un sistema de meta-contrucción que genera archivos de construcción para \texttt{Ninja},  se utiliza actualmente como sistema de construcción para Chromium, Fuchsia y proyectos relacionados.
+\end{frame}
+
+\begin{frame}{LLVM}
+	Es una colección de tecnologías modulares y reutilizables de compiladores y herramientas que comenzó como un proyecto de investigación en la Universidad de Illinois, con el objetivo de proporcionar una estrategia de compilación moderna basada en 
+	SSA\footnote{
+		\textit{Static Single Assignment}  es un medio para estructurar la representación intermedia, de modo que cada variable se asigne un valor solo una vez y cada variable se define antes de su uso, su utilidad es simplificar y emjorar los resultados de los algoritmos de optimización del compilador.
+	}
+	
+	capaz de apoyar la compilación estática y dinámica de lenguajes de programación arbitrarios.
+\end{frame}
+
+\begin{frame}{QEMU}
+	Es un emulador de máquina y espacio de usuario y virtualizador genérico de código abierto, capaz de emular máquinas sin necesidad de soporte de virtualización de hardware.
+\end{frame}
+
+
+
+
+
+
+
+

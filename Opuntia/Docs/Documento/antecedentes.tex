@@ -1,0 +1,106 @@
+\section{Antecedentes}
+
+OpuntiaOS es un sistema operativo gratuito, de código abierto, disponible
+en su 
+\href{https://github.com/opuntiaOS-Project/opuntiaOS}{\textcolor{blue}{repositorio}}
+de \texttt{GitHub}.
+
+% x86/x86-64, ARMv7 and Arm64 kernel with pre-emptive multi-threading
+
+
+
+De acuerdo con su descripción en \cite{osdev} (\texttt{ctrl+F} -> ``opuntiaOS''):
+\begin{center}
+	\begin{minipage}{10cm}
+		\itshape
+		``opuntiaOS - un sistema opetativo que soporta x86 y ARMv7. Proporciona un kernel con excelentes características como SMP and Ext2, bibliotecas de tiempo de ejecución personalizadas para C/C++/ObjC y bibliotecas para UI.''
+	\end{minipage}
+\end{center} 
+
+
+
+De la misma manera, se menciona que el desarrollo del \textit{kernel} está activo
+y observando el repositorio, la última actualización de código fue el 06 de Abril del 2023.
+
+
+
+Este sistema contiene un \textit{Prickly Pear Kernel}, que en términos estrictos de sistemas operativos no tiene un significado en específico, sin embargo, en el repositorio del autor (\texttt{docs/kernel.md}) se menciona que:
+\begin{center}
+	\begin{minipage}{10cm}
+		\itshape
+		``Prickly Pear Kernel de opuntiaOS es un kernel similar a Unix, que soporta arquitecturas x86/x86-64, arm32 y arm64.''
+	\end{minipage}
+\end{center}
+
+
+
+Los principales directorios, relacionados con la teoría del curso, son:
+\begin{itemize} \setlength\itemsep{0pt}
+	%\item \texttt{algo}: Algoritmos y estructuras usadas por el \textit{kernel}.
+	\item \texttt{drivers}: Controladores de las plataformas soportadas.
+	\item \texttt{fs}: Implementación del VFS y FS soportados.
+	%\item \texttt{io}: Elementos de comunicación.
+	%\item \texttt{libkern}: Librería de soporte para el \textit{kernel}.
+	\item \texttt{mem}: Manejadores de memoria física y virtual.
+	\item \texttt{platform}: Código para la arquitectura \texttt{ARM}.
+	\item \texttt{syscalls}: Implementación de \texttt{syscalls}.
+	%\item \texttt{tasking}: Mecanismos de control de tareas.
+	\item \texttt{time}: Manejador de tiempo.
+\end{itemize}
+
+
+
+\newpage
+\subsection{Ninja \label{ssec:ninja}}
+	\texttt{Ninja} es un sistema de construcción pequeño centrado en la velocidad que, a diferencia de otros sistemas de compilación, está diseñado para que sus archivos de entrada sean generados por un sistema de compilación de nivel superior y está diseñado para ejecutar compilaciones lo más rápido posible \cite{ninja}.
+	
+	Mientras que otros sistemas de compilación, como \texttt{make}, son lenguajes de alto nivel, \texttt{Ninja} pretende ser un ensamblador \cite{ninja}. 
+	
+	Este enfoque de bajo nivel lo hace perfecto para integrarlo en sistemas de construcción con más funciones. \texttt{Ninja} se usa para construir Google Chrome, partes de Android, LLVM y se puede usar en muchos otros proyectos gracias al \textit{backend} \texttt{Ninja} de \texttt{CMake} \cite{ninja}.
+	
+	La última versión de \texttt{Ninja} es la 1.11.1, disponible en su repositorio de Github, sin embargo, es accesible desde los repositorios de Ubuntu por medio de \texttt{sudo apt install ninja-build} pero su versión más reciente es la 1.10.1-1.
+	
+\subsection{GN \label{ssec:gn}}
+	GN es un sistema de meta-contrucción que genera archivos de construcción para \texttt{Ninja},  se utiliza actualmente como sistema de construcción para Chromium, Fuchsia y proyectos relacionados
+	\cite{gn}.
+	
+	Está diseñado para proyectos multiplataforma y admite múltiples directorios de salida paralelos, cada uno con su propia configuración. Esto permite que un desarrollador mantenga compilaciones de depuración, liberación o plataformas diferentes en paralelo sin reconstrucciones forzadas al cambiar de directorio \cite{gn}.
+	
+	También comprueba las dependencias, entradas y salidas, permitiendo garantizar que la compilación evolucione según lo deseado \cite{gn}.
+	
+\newpage
+\subsection{LLVM \label{ssec:llvm}}
+	Es una colección de tecnologías modulares y reutilizables de compiladores y herramientas que comenzó como un proyecto de investigación en la Universidad de Illinois, con el objetivo de proporcionar una estrategia de compilación moderna basada en 
+	SSA\footnote{
+		\textit{Static Single Assignment}  es un medio para estructurar la representación intermedia, de modo que cada variable se asigne un valor solo una vez y cada variable se define antes de su uso, su utilidad es simplificar y emjorar los resultados de los algoritmos de optimización del compilador \cite{ssa_gfg}.
+	}
+	
+	capaz de apoyar la compilación estática y dinámica de lenguajes de programación arbitrarios \cite{llvm}. 
+	
+	\texttt{LLVM} se ha convertido en un proyecto general que consiste en una serie de subproyectos, muchos de los cuales están siendo utilizados en producción de otros más comerciales y de código abierto \cite{llvm}.
+	
+	
+	
+	Además, es ampliamente utilizado en la investigación académica. El código en el proyecto \texttt{LLVM} tiene licencia \texttt{Apache 2.0} con excepciones \texttt{LLVM} \cite{llvm}.
+	
+\subsection{QEMU}
+	Es un emulador de máquina y espacio de usuario y virtualizador genérico de código abierto, capaz de emular máquinas sin necesidad de soporte de virtualización de hardware \cite{qemu_repo}. 
+	
+	
+	
+	Utiliza 
+	traducción dinámica\footnote{
+		La traducción dinámica es una técnica que permite ejecutar código binario de una arquitectura de CPU en una arquitectura diferente, traduciendo las instrucciones del código binario original a las instrucciones de la arquitectura del equipo anfitrión en tiempo real \cite{qemu_kvm}.
+	}
+	, logrando un buen rendimiento y puede integrarse con los aceleradores de \textit{hardware} \texttt{Xen} y \texttt{KVM} para proporcionar \textit{hardware} emulado y al mismo tiempo permitir que el acelerador administre la CPU \cite{qemu_repo}.
+	
+	
+	
+	``Cuando \texttt{QEMU} emula CPU directamente, es capaz de ejecutar sistemas operativos creados para una máquina (por ejemplo, una placa ARMv7) en una máquina diferente (por ejemplo, una placa de PC x86\_64)'' \cite{qemu_repo}.
+	
+
+
+	
+	
+	
+	

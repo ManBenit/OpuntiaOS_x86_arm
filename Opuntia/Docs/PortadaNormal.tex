@@ -1,0 +1,37 @@
+\newcommand{\pnormal}[3]{
+	\backgroundsetup{
+		scale=1,
+		opacity= 0.05,
+		angle= 0,
+		contents= {
+			\includegraphics[width=0.75\paperwidth, height=0.9\paperheight]{../portada.tex/logo_ipn_negro.png}
+		}
+	}
+	\BgThispage
+	\begin{center}
+   		\begin{figure}[!tbp]
+   			\centering
+   			\subfloat{\includegraphics[scale=0.2]{../portada.tex/logo_cic.png}}
+   			\hfill
+   			\subfloat{\includegraphics[scale=0.2]{../portada.tex/logo_cic.png}}
+   		\end{figure}
+        
+        {\LARGE \textcolor{guinda}{\textbf{I}NSTITUTO \textbf{P}OLIT\'ECNICO \textbf{N}ACONAL} }
+        \\ \vspace{1cm}
+        {\LARGE \textit{ \textcolor{azul}{Centro de Investigaci\'on en Computaci\'on} } }
+		\\
+        {\Large \textit{ \textcolor{azul}{(\textbf{CIC})} } }
+        \\ \vspace{2.5cm}
+        {\Large \textsc{\underline{#1}}} %%%%%%%%%%Materia%%%%%%%%%%
+        \\ \vspace{2.5cm}
+        {\LARGE \textbf{ \textcolor{guinda}{#2} } } %%%%%%%%%%Título%%%%%%%%%%
+        \\ \vspace{2.5cm}
+        {\Large \textsc{ #3 } } %%%%%%%%%%Profesor%%%%%%%%%%
+        \\ \vspace{2cm}
+        {\Large \textsc{ Manuel Emilio Ben\'itez Morales } }
+        %\ \\
+        %A230720
+        \\ \vspace{2cm}
+        {\large \textsc{  \textsl{ Ciudad de M\'exico, \today } } }
+    \end{center}
+}
