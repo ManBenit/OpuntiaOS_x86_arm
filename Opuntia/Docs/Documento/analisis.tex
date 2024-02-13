@@ -373,7 +373,7 @@
 			\item \underline{Modo usuario}: Proporciona un entorno aislado para ejecutar aplicaciones de usuario, evitando que puedan acceder a recursos del sistema que no necesitan.
 		\end{itemize}
 	
-		\item \textbf{Protección}
+		\item \textbf{Rendimiento}
 		\begin{itemize} \setlength\itemsep{0pt}
 			\item \underline{Modo supervisor}: Permite un mayor rendimiento al ejecutar código privilegiado que necesita acceso directo al \textit{hardware}.
 			
@@ -505,7 +505,7 @@
 			\item \texttt{boot/x86/stage2/stage2\_entry.s}: Inicialización de las estructuras del kernel.
 		\end{itemize}
 	
-		NOTA: El archivo \texttt{boot/x86\_64/prekernel/mboot1.S} contiene una estructura mucho más similar al ensamblador proporcionado en el proyecto de Molloy, sin embargo el presente documento contempla la compilación en \texttt{x86} y no en \texttt{x86\_64}
+		NOTA: El archivo \texttt{boot/x86\_64/prekernel/mboot1.S} contiene una estructura mucho más similar al ensamblador proporcionado en el proyecto de Molloy, sin embargo el presente documento contempla la compilación en \texttt{x86} y no en \texttt{x86\_64}.
 		
 		
 		Para ARM
@@ -643,7 +643,7 @@
 		
 		En la arquitectura ARM no hay un PIT estándar, por otro lado, pueden usar temporizadores o contadores específicos que son parte del diseño del sistema embebido o del SoC, que pueden variar entre diferentes dispositivos.
 		
-		Para ambas arquitecturas se implementa un Administrados principal de \textit{ticks}:\\
+		Para ambas arquitecturas se implementa un Administrador principal de \textit{ticks}:\\
 		\texttt{kernel/include/time/time\_manager.h} \\
 		\texttt{kernel/kernel/time/time\_manager.c}
 		
@@ -669,16 +669,16 @@
 		Archivos de Molloy: \texttt{paging.h, paging.c, kheap.h, kheap.c}.
 		
 		
-		Se usa el heap para los archivos en \texttt{kernel/kernel/io}.
+		Se usa el \textit{heap} para los archivos en \texttt{kernel/kernel/io}.
 		
 		\begin{itemize} \setlength\itemsep{0pt}
-			\item sadasdasdasd
+			\item Definición del \textit{heap} y su control
 			\begin{itemize} \setlength\itemsep{0pt}
 				\item \texttt{kernel/include/mem/kmalloc.h}
 				\item \texttt{kernel/kernel/mem/kmalloc.c}
 			\end{itemize}
 			
-			\item sadasdasdasd
+			\item Gestión de la memoria virtual
 			\begin{itemize} \setlength\itemsep{0pt}
 				\item \texttt{kernel/include/mem/vmm.h}
 				\item \texttt{kernel/kernel/mem/vmm.c}
@@ -686,7 +686,7 @@
 			
 		\end{itemize}
 	
-		Se utiliza el mismo manejo de memoria 
+		Se utiliza el mismo manejo de memoria para ambas arquitecturas.
 		
 	
 	
@@ -725,7 +725,7 @@
 			\item \texttt{kernel/kernel/tasking/tasking.c}
 		\end{itemize}
 	
-		Sin embargo, cada una tiene su propia implementación particular
+		Sin embargo, cada una tiene su propia implementación particular.
 		
 		Para x86:
 		\begin{itemize} \setlength\itemsep{0pt}
@@ -816,7 +816,7 @@
 		
 	
 	\subsubsection{Controladores de dispositivos}
-		La definición de un dispositivo y los periféricos que pudiera estar utilizando se encuentra en la  \autoref{prog:struct_device} y \autoref{prog:struct_}.
+		La definición de un dispositivo y los periféricos que pudiera estar utilizando se encuentra en la  \autoref{prog:struct_device}.
 		
 		Esta estructura se usa para definir un árbol de dispositivos del sistema, para controlar esto se utiliza una estructura diferente (ver \autoref{prog:struct_devtree}.
 		
